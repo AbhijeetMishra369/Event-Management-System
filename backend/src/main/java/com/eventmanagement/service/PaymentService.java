@@ -45,7 +45,7 @@ public class PaymentService {
 		if (!type.isActive()) throw new RuntimeException("Ticket type inactive");
 		if (type.getAvailableQuantity() < req.getQuantity()) throw new RuntimeException("Insufficient availability");
 
-		long amountPaise = Math.round(type.getPrice() * 100) * req.getQuantity();
+		long amountPaise = Math.round(type.getPrice().multiply(java.math.BigDecimal.valueOf(100)).doubleValue()) * req.getQuantity();
 		JSONObject orderRequest = new JSONObject();
 		orderRequest.put("amount", amountPaise);
 		orderRequest.put("currency", req.getCurrency());
