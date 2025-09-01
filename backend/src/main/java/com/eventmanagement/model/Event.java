@@ -123,10 +123,10 @@ public class Event {
     }
     
     public int getTotalAvailableTickets() {
-        return ticketTypes.stream()
-                .filter(TicketType::isActive)
-                .mapToInt(TicketType::getAvailableQuantity)
-                .sum();
+        		return ticketTypes.stream()
+				.filter(type -> type.getIsActive())
+				.mapToInt(TicketType::getAvailableQuantity)
+				.sum();
     }
     
     public BigDecimal getTotalRevenue() {

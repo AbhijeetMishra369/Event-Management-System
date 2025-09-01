@@ -41,9 +41,9 @@ public class TicketService {
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Ticket type not found"));
         
-        if (!ticketType.isActive()) {
-            throw new RuntimeException("Ticket type is not active");
-        }
+        		if (!ticketType.getIsActive()) {
+			throw new RuntimeException("Ticket type is not active");
+		}
         
         if (ticketType.getAvailableQuantity() < request.getQuantity()) {
             throw new RuntimeException("Not enough tickets available");
@@ -179,9 +179,9 @@ public class TicketService {
             throw new RuntimeException("Unauthorized to process refund");
         }
         
-        if (!ticket.isRefundRequested()) {
-            throw new RuntimeException("Ticket has not been requested for refund");
-        }
+        		if (!ticket.getRefundRequested()) {
+			throw new RuntimeException("Ticket has not been requested for refund");
+		}
         
         ticket.processRefund(ticket.getPrice());
         ticketRepository.save(ticket);
@@ -215,5 +215,11 @@ public class TicketService {
         
         String qrCodeData = ticket.getTicketNumber() + "|" + ticket.getEventId() + "|" + ticket.getAttendeeId();
         return qrCodeGenerator.generateQRCode(qrCodeData);
+    }
+    
+    public boolean isRefundRequested(String ticketId) {
+        Ticket ticket = ticketRepository.findById(ticketId)
+                .orElseThrow(() -> new RuntimeException("Ticket not found"));
+        		return ticket.getRefundRequested();
     }
 }

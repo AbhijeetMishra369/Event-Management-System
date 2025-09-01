@@ -43,7 +43,7 @@ public class AnalyticsService {
 	public Map<String, Object> getOrganizerOverview(String organizerId) {
 		List<Event> events = eventRepository.findByOrganizerId(organizerId);
 		int totalEvents = events.size();
-		int activeEvents = (int) events.stream().filter(e -> e.isPublished()).count();
+		int activeEvents = (int) events.stream().filter(e -> e.isPublished).count();
 		int ticketsSold = 0;
 		BigDecimal revenue = BigDecimal.ZERO;
 		for (Event e : events) {
