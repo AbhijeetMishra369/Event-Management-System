@@ -41,7 +41,7 @@ public class TicketService {
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Ticket type not found"));
         
-        		if (!ticketType.getIsActive()) {
+        		if (!ticketType.isActive()) {
 			throw new RuntimeException("Ticket type is not active");
 		}
         
@@ -179,7 +179,7 @@ public class TicketService {
             throw new RuntimeException("Unauthorized to process refund");
         }
         
-        		if (!ticket.getRefundRequested()) {
+        		if (!ticket.isRefundRequested()) {
 			throw new RuntimeException("Ticket has not been requested for refund");
 		}
         
@@ -220,6 +220,6 @@ public class TicketService {
     public boolean isRefundRequested(String ticketId) {
         Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new RuntimeException("Ticket not found"));
-        		return ticket.getRefundRequested();
+        		return ticket.isRefundRequested();
     }
 }

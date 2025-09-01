@@ -115,21 +115,23 @@ public class Event {
     
     public boolean isEventActive() {
         LocalDateTime now = LocalDateTime.now();
-        return eventDate.isAfter(now) && status == EventStatus.PUBLISHED;
+        return eventDate != null && eventDate.isAfter(now) && status == EventStatus.PUBLISHED;
     }
     
     public boolean isEventCompleted() {
-        return endDate.isBefore(LocalDateTime.now());
+        return endDate != null && endDate.isBefore(LocalDateTime.now());
     }
     
     public int getTotalAvailableTickets() {
-        		return ticketTypes.stream()
-				.filter(type -> type.getIsActive())
-				.mapToInt(TicketType::getAvailableQuantity)
-				.sum();
+        if (ticketTypes == null) return 0;
+        return ticketTypes.stream()
+                .filter(TicketType::isActive)
+                .mapToInt(TicketType::getAvailableQuantity)
+                .sum();
     }
     
     public BigDecimal getTotalRevenue() {
+        if (ticketTypes == null) return BigDecimal.ZERO;
         return ticketTypes.stream()
                 .map(type -> type.getPrice().multiply(BigDecimal.valueOf(type.getSoldQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
