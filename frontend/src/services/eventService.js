@@ -1,6 +1,17 @@
 import api from './api';
 
 export const eventService = {
+  async getPublishedEvents(page = 0, size = 10) {
+    try {
+      const response = await api.get('/events/public', { 
+        params: { page, size } 
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch events');
+    }
+  },
+
   async getEvents(params = {}) {
     try {
       const response = await api.get('/events/public', { params });
@@ -28,10 +39,10 @@ export const eventService = {
     }
   },
 
-  async searchEvents(query, params = {}) {
+  async searchEvents(query, page = 0, size = 10) {
     try {
       const response = await api.get('/events/public/search', {
-        params: { query, ...params }
+        params: { query, page, size }
       });
       return response.data;
     } catch (error) {

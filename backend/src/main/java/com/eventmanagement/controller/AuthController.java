@@ -46,8 +46,12 @@ public class AuthController {
     public ResponseEntity<Boolean> validateToken(@RequestHeader("Authorization") String token) {
         if (token != null && token.startsWith("Bearer ")) {
             String jwt = token.substring(7);
-            // Validate token logic
-            return ResponseEntity.ok(true);
+            try {
+                String username = userService.validateToken(jwt);
+                return ResponseEntity.ok(username != null);
+            } catch (Exception e) {
+                return ResponseEntity.ok(false);
+            }
         }
         return ResponseEntity.ok(false);
     }

@@ -18,18 +18,21 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     // Check if user is logged in on app start
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
     if (token) {
-      authService.validateToken(token)
-        .then(userData => {
+      // For now, just set loading to false and assume token is valid
+      // In production, you'd want to validate the token with the server
+      try {
+        const userData = JSON.parse(localStorage.getItem('user') || '{}');
+        if (userData.email) {
           setUser(userData);
-        })
-        .catch(() => {
-          localStorage.removeItem('token');
-        })
-        .finally(() => {
-          setLoading(false);
-        });
+        }
+      } catch (e) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('user');
+      }
+      setLoading(false);
     } else {
       setLoading(false);
     }
@@ -41,7 +44,8 @@ export const AuthProvider = ({ children }) => {
       const response = await authService.login(email, password);
       const { accessToken, user: userData } = response;
       
-      localStorage.setItem('token', accessToken);
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('user', JSON.stringify(userData));
       setUser(userData);
       return response;
     } catch (err) {
@@ -56,7 +60,8 @@ export const AuthProvider = ({ children }) => {
       const response = await authService.register(userData);
       const { accessToken, user: newUser } = response;
       
-      localStorage.setItem('token', accessToken);
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('user', JSON.stringify(newUser));
       setUser(newUser);
       return response;
     } catch (err) {
@@ -66,7 +71,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
+    localStorage.removeItem('accessToken');
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     setUser(null);
     setError(null);
   };

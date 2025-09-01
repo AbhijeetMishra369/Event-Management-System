@@ -165,4 +165,12 @@ public class UserService implements UserDetailsService {
         user.setUpdatedAt(LocalDateTime.now());
         userRepository.save(user);
     }
+    
+    public String validateToken(String token) {
+        try {
+            return jwtTokenProvider.getUsernameFromToken(token);
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }
