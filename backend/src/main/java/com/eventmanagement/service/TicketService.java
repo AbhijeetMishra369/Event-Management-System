@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,10 +32,16 @@ public class TicketService {
     
     @Autowired
     private QRCodeGenerator qrCodeGenerator;
+
+    @Autowired
+    private EmailService emailService;
     
     public List<Ticket> purchaseTickets(TicketPurchaseRequest request, String attendeeId) {
         Event event = eventRepository.findById(request.getEventId())
                 .orElseThrow(() -> new RuntimeException("Event not found"));
+
+        User user = userRepository.findById(attendeeId)
+                .orElseThrow(() -> new RuntimeException("User not found, cannot send confirmation email."));
         
         Event.TicketType ticketType = event.getTicketTypes().stream()
                 .filter(type -> type.getId().equals(request.getTicketTypeId()))
@@ -76,9 +83,14 @@ public class TicketService {
             
             // Generate QR code
             String qrCodeData = ticket.getTicketNumber() + "|" + event.getId() + "|" + attendeeId;
-            ticket.setQrCode(qrCodeGenerator.generateQRCode(qrCodeData));
+            byte[] qrCodeBytes = qrCodeGenerator.generateQRCodeBytes(qrCodeData);
+            ticket.setQrCode(Base64.getEncoder().encodeToString(qrCodeBytes)); // Save as base64 string
             
-            tickets.add(ticketRepository.save(ticket));
+            Ticket savedTicket = ticketRepository.save(ticket);
+            tickets.add(savedTicket);
+
+            // Send confirmation email
+            emailService.sendTicketConfirmationEmail(user, savedTicket, qrCodeBytes);
         }
         
         return tickets;
