@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.util.List;
 
 @Service
@@ -43,7 +42,7 @@ public class PaymentService {
 				.filter(t -> t.getId().equals(req.getTicketTypeId()))
 				.findFirst()
 				.orElseThrow(() -> new RuntimeException("Ticket type not found"));
-		if (!type.getIsActive()) throw new RuntimeException("Ticket type inactive");
+		if (!type.isActive()) throw new RuntimeException("Ticket type inactive");
 		if (type.getAvailableQuantity() < req.getQuantity()) throw new RuntimeException("Insufficient availability");
 
 		long amountPaise = Math.round(type.getPrice() * 100) * req.getQuantity();

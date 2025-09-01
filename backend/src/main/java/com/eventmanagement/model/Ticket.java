@@ -110,16 +110,26 @@ public class Ticket {
     
     public boolean isExpired() {
         // Check if event date has passed
-        LocalDateTime eventDateTime = LocalDateTime.parse(eventDate);
-        return eventDateTime.isBefore(LocalDateTime.now());
+        if (eventDate == null) return false;
+        try {
+            LocalDateTime eventDateTime = LocalDateTime.parse(eventDate);
+            return eventDateTime.isBefore(LocalDateTime.now());
+        } catch (Exception e) {
+            return false;
+        }
     }
     
     public boolean canBeRefunded() {
-        LocalDateTime eventDateTime = LocalDateTime.parse(eventDate);
-        LocalDateTime refundDeadline = eventDateTime.minusDays(7); // 7 days before event
-        return status == TicketStatus.ACTIVE && 
-               paymentStatus == PaymentStatus.COMPLETED &&
-               LocalDateTime.now().isBefore(refundDeadline);
+        if (eventDate == null) return false;
+        try {
+            LocalDateTime eventDateTime = LocalDateTime.parse(eventDate);
+            LocalDateTime refundDeadline = eventDateTime.minusDays(7); // 7 days before event
+            return status == TicketStatus.ACTIVE && 
+                   paymentStatus == PaymentStatus.COMPLETED &&
+                   LocalDateTime.now().isBefore(refundDeadline);
+        } catch (Exception e) {
+            return false;
+        }
     }
     
     public void markAsUsed(String validatedBy) {

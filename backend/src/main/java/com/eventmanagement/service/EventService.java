@@ -46,8 +46,8 @@ public class EventService {
         event.setOrganizerId(organizerId);
         event.setOrganizerName(organizer.getFullName());
         event.setStatus(Event.EventStatus.DRAFT);
-        event.setIsPublished(false);
-        event.setIsFeatured(false);
+        event.setPublished(false);
+        event.setFeatured(false);
         event.setCreatedAt(LocalDateTime.now());
         event.setUpdatedAt(LocalDateTime.now());
         
@@ -55,7 +55,7 @@ public class EventService {
         if (eventRequest.getTicketTypes() != null) {
             event.setTicketTypes(eventRequest.getTicketTypes().stream()
                     .map(this::convertToTicketType)
-                    .toList());
+                    .collect(java.util.stream.Collectors.toList()));
         }
         
         // Set default settings
@@ -97,7 +97,7 @@ public class EventService {
         if (eventRequest.getTicketTypes() != null) {
             event.setTicketTypes(eventRequest.getTicketTypes().stream()
                     .map(this::convertToTicketType)
-                    .toList());
+                    .collect(java.util.stream.Collectors.toList()));
         }
         
         if (eventRequest.getSettings() != null) {
@@ -116,7 +116,7 @@ public class EventService {
         }
         
         event.setStatus(Event.EventStatus.PUBLISHED);
-        event.setIsPublished(true);
+        event.setPublished(true);
         event.setPublishedAt(LocalDateTime.now());
         event.setUpdatedAt(LocalDateTime.now());
         
@@ -192,7 +192,7 @@ public class EventService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new RuntimeException("Event not found"));
         
-        event.setIsFeatured(!event.getIsFeatured());
+        event.setFeatured(!event.isFeatured());
         event.setUpdatedAt(LocalDateTime.now());
         
         return eventRepository.save(event);
@@ -207,7 +207,7 @@ public class EventService {
         ticketType.setTotalQuantity(request.getTotalQuantity());
         ticketType.setSoldQuantity(0);
         ticketType.setAvailableQuantity(request.getTotalQuantity());
-        ticketType.setIsActive(true);
+        ticketType.setActive(true);
         ticketType.setSaleStartDate(request.getSaleStartDate());
         ticketType.setSaleEndDate(request.getSaleEndDate());
         ticketType.setBenefits(request.getBenefits());
