@@ -2,6 +2,7 @@
 /workspace/backend/src/main/java/com/eventmanagement/model/User.java
 /workspace/backend/src/main/java/com/eventmanagement/service/AnalyticsService.java
 /workspace/backend/src/main/java/com/eventmanagement/service/TicketService.java
+/workspace/backend/src/main/java/com/eventmanagement/service/EmailService.java
 /workspace/backend/src/main/java/com/eventmanagement/config/OpenApiConfig.java
 /workspace/backend/src/main/java/com/eventmanagement/controller/AuthController.java
 /workspace/backend/src/main/java/com/eventmanagement/dto/TicketPurchaseRequest.java
@@ -9,6 +10,7 @@
 /workspace/backend/src/main/java/com/eventmanagement/repository/EventRepository.java
 /workspace/backend/src/main/java/com/eventmanagement/dto/PaymentDtos.java
 /workspace/backend/src/main/java/com/eventmanagement/controller/UploadController.java
+/workspace/backend/src/main/java/com/eventmanagement/dto/DailySales.java
 /workspace/backend/src/main/java/com/eventmanagement/controller/TicketController.java
 /workspace/backend/src/main/java/com/eventmanagement/config/PaymentConfig.java
 /workspace/backend/src/main/java/com/eventmanagement/config/SecurityConfig.java
