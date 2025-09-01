@@ -84,6 +84,13 @@ public class TicketService {
         return tickets;
     }
     
+    public void setPaymentIdForTickets(List<Ticket> tickets, String paymentId) {
+        for (Ticket t : tickets) {
+            t.setPaymentId(paymentId);
+        }
+        ticketRepository.saveAll(tickets);
+    }
+    
     public Optional<Ticket> getTicketById(String ticketId) {
         return ticketRepository.findById(ticketId);
     }

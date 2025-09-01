@@ -2,6 +2,7 @@ package com.eventmanagement.controller;
 
 import com.eventmanagement.dto.TicketPurchaseRequest;
 import com.eventmanagement.model.Ticket;
+import com.eventmanagement.service.PaymentService;
 import com.eventmanagement.service.TicketService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,6 +27,9 @@ public class TicketController {
     
     @Autowired
     private TicketService ticketService;
+    
+    @Autowired
+    private PaymentService paymentService;
     
     @PostMapping("/purchase")
     public ResponseEntity<List<Ticket>> purchaseTickets(@Valid @RequestBody TicketPurchaseRequest request) {
@@ -102,34 +109,24 @@ public class TicketController {
         ));
     }
     
-    @PostMapping("/{id}/refund-request")
-    public ResponseEntity<Boolean> requestRefund(
-            @PathVariable String id,
-            @RequestBody Map<String, String> request) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String attendeeId = authentication.getName();
-        String reason = request.get("reason");
-        
-        try {
-            boolean success = ticketService.requestRefund(id, reason, attendeeId);
-            return ResponseEntity.ok(success);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
-    
-    @PostMapping("/{id}/refund-process")
-    public ResponseEntity<Boolean> processRefund(@PathVariable String id) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String organizerId = authentication.getName();
-        
-        try {
-            boolean success = ticketService.processRefund(id, organizerId);
-            return ResponseEntity.ok(success);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
+    @PostMapping("/{ticketId}/refund-request")
+    public ResponseEntity<?> requestRefund(@PathVariable String ticketId, @RequestBody Map<String, String> body,
+			@AuthenticationPrincipal UserDetails user) {
+		String reason = body.getOrDefault("reason", "");
+		boolean ok = ticketService.requestRefund(ticketId, reason, user.getUsername());
+		return ok ? ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
+	}
+
+	@PostMapping("/{ticketId}/refund-process")
+	@PreAuthorize("hasAnyRole('ORGANIZER','ADMIN')")
+	public ResponseEntity<?> processRefund(@PathVariable String ticketId, @AuthenticationPrincipal UserDetails user) throws Exception {
+		Ticket ticket = ticketService.getTicketById(ticketId).orElseThrow(() -> new RuntimeException("Ticket not found"));
+		// Refund via Razorpay
+		paymentService.refundPaymentForTicket(ticket);
+		// Update local state and availability
+		boolean ok = ticketService.processRefund(ticketId, user.getUsername());
+		return ok ? ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
+	}
     
     @GetMapping("/refund-requests")
     public ResponseEntity<List<Ticket>> getRefundRequestedTickets() {
