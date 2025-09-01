@@ -5,6 +5,7 @@ import com.eventmanagement.dto.PaymentDtos.CreateOrderResponse;
 import com.eventmanagement.dto.PaymentDtos.VerifyPaymentRequest;
 import com.eventmanagement.model.Event;
 import com.eventmanagement.model.Ticket;
+import com.eventmanagement.repository.TicketRepository;
 import com.razorpay.Order;
 import com.razorpay.RazorpayClient;
 import org.json.JSONObject;
@@ -12,8 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
+import java.security.MessageDigest;
 import java.util.List;
 
 @Service
@@ -21,16 +21,18 @@ public class PaymentService {
 	private final RazorpayClient razorpayClient;
 	private final EventService eventService;
 	private final TicketService ticketService;
+	private final TicketRepository ticketRepository;
 	private final MailService mailService;
 	@Value("${razorpay.keyId}")
 	private String keyId;
 	@Value("${razorpay.keySecret}")
 	private String keySecret;
 
-	public PaymentService(RazorpayClient razorpayClient, EventService eventService, TicketService ticketService, MailService mailService) {
+	public PaymentService(RazorpayClient razorpayClient, EventService eventService, TicketService ticketService, TicketRepository ticketRepository, MailService mailService) {
 		this.razorpayClient = razorpayClient;
 		this.eventService = eventService;
 		this.ticketService = ticketService;
+		this.ticketRepository = ticketRepository;
 		this.mailService = mailService;
 	}
 
@@ -41,7 +43,7 @@ public class PaymentService {
 				.filter(t -> t.getId().equals(req.getTicketTypeId()))
 				.findFirst()
 				.orElseThrow(() -> new RuntimeException("Ticket type not found"));
-		if (!type.isActive()) throw new RuntimeException("Ticket type inactive");
+		if (!type.getIsActive()) throw new RuntimeException("Ticket type inactive");
 		if (type.getAvailableQuantity() < req.getQuantity()) throw new RuntimeException("Insufficient availability");
 
 		long amountPaise = Math.round(type.getPrice() * 100) * req.getQuantity();
@@ -61,16 +63,21 @@ public class PaymentService {
 			return false;
 		}
 		// Signature valid: create tickets
-		List<Ticket> tickets = ticketService.purchaseTickets(
-			new com.eventmanagement.dto.TicketPurchaseRequest(
-				req.getEventId(), req.getTicketTypeId(), req.getQuantity(),
-				req.getAttendeeName(), req.getAttendeeEmail(), req.getAttendeePhone(), null,
-				"RAZORPAY", null
-			),
-			userId
-		);
+		com.eventmanagement.dto.TicketPurchaseRequest purchaseRequest = new com.eventmanagement.dto.TicketPurchaseRequest();
+		purchaseRequest.setEventId(req.getEventId());
+		purchaseRequest.setTicketTypeId(req.getTicketTypeId());
+		purchaseRequest.setQuantity(req.getQuantity());
+		purchaseRequest.setAttendeeName(req.getAttendeeName());
+		purchaseRequest.setAttendeeEmail(req.getAttendeeEmail());
+		purchaseRequest.setAttendeePhone(req.getAttendeePhone());
+		purchaseRequest.setPaymentMethod("RAZORPAY");
+		
+		List<Ticket> tickets = ticketService.purchaseTickets(purchaseRequest, userId);
 		// Set payment id on tickets
-		ticketService.setPaymentIdForTickets(tickets, req.getRazorpayPaymentId());
+		for (Ticket ticket : tickets) {
+			ticket.setPaymentId(req.getRazorpayPaymentId());
+		}
+		ticketRepository.saveAll(tickets);
 		// Email tickets
 		sendTicketEmails(tickets);
 		return tickets != null && !tickets.isEmpty();
@@ -102,8 +109,8 @@ public class PaymentService {
 	}
 
 	private String hmacSHA256(String data, String secret) throws Exception {
-		Mac mac = Mac.getInstance("HmacSHA256");
-		SecretKeySpec secretKeySpec = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+		javax.crypto.Mac mac = javax.crypto.Mac.getInstance("HmacSHA256");
+		javax.crypto.spec.SecretKeySpec secretKeySpec = new javax.crypto.spec.SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
 		mac.init(secretKeySpec);
 		byte[] digest = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
 		StringBuilder sb = new StringBuilder();

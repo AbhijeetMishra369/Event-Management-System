@@ -43,6 +43,9 @@ public interface EventRepository extends MongoRepository<Event, String> {
     @Query("{'status': 'PUBLISHED', 'isPublished': true, 'organizerId': ?0}")
     List<Event> findOrganizerEvents(String organizerId);
     
+    @Query("{'organizerId': ?0}")
+    List<Event> findByOrganizerId(String organizerId);
+    
     @Query("{'status': 'COMPLETED'}")
     List<Event> findCompletedEvents();
     
