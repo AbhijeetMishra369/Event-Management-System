@@ -22,6 +22,7 @@ import MyTickets from './pages/MyTickets';
 import TicketValidation from './pages/TicketValidation';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
+import OrganizerSales from './pages/OrganizerSales';
 
 function App() {
   return (
@@ -67,6 +68,11 @@ function App() {
               <Route path="/settings" element={
                 <ProtectedRoute>
                   <Settings />
+                </ProtectedRoute>
+              } />
+              <Route path="/organizer/sales" element={
+                <ProtectedRoute>
+                  <OrganizerSales />
                 </ProtectedRoute>
               } />
 
