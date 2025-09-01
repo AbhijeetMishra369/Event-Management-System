@@ -30,6 +30,7 @@ public class UserService implements UserDetailsService {
     @Autowired
     private PasswordEncoder passwordEncoder;
     
+    @Lazy
     @Autowired
     private AuthenticationManager authenticationManager;
     
