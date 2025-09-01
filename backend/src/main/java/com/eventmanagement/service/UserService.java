@@ -6,6 +6,7 @@ import com.eventmanagement.model.User;
 import com.eventmanagement.repository.UserRepository;
 import com.eventmanagement.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -25,6 +26,7 @@ public class UserService implements UserDetailsService {
     @Autowired
     private UserRepository userRepository;
     
+    @Lazy
     @Autowired
     private PasswordEncoder passwordEncoder;
     

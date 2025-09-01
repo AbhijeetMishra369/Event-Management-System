@@ -1,9 +1,9 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Typography, Container, Card, CardContent, Tabs, Tab, Grid, Button, Alert, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 import { ticketService } from '../services/ticketService';
 import { eventService } from '../services/eventService';
 import { analyticsService } from '../services/analyticsService';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from 'recharts';
 
 const OrganizerSales = () => {
@@ -11,6 +11,7 @@ const OrganizerSales = () => {
   const [refunds, setRefunds] = useState([]);
   const [events, setEvents] = useState([]);
   const [overview, setOverview] = useState(null);
+  const [salesData, setSalesData] = useState([]);
   const [info, setInfo] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
@@ -19,14 +20,22 @@ const OrganizerSales = () => {
     setLoading(true);
     setError('');
     try {
-      const [refundList, organizerEvents, ov] = await Promise.all([
+      const [refundList, organizerEvents, ov, sales] = await Promise.all([
         ticketService.getRefundRequestedTickets(),
         eventService.getOrganizerEvents(),
         analyticsService.getOrganizerOverview(),
+        analyticsService.getOrganizerSalesByDate(7),
       ]);
       setRefunds(refundList || []);
       setEvents(organizerEvents || []);
       setOverview(ov || null);
+
+      const formattedSales = sales.map(s => ({
+        ...s,
+        date: format(parseISO(s.date), 'MMM dd'),
+      }));
+      setSalesData(formattedSales);
+
     } catch (e) {
       setError(e.message);
     } finally {
@@ -35,19 +44,6 @@ const OrganizerSales = () => {
   };
 
   useEffect(() => { load(); }, []);
-
-  const salesData = useMemo(() => {
-    const today = new Date();
-    const series = [];
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date(today);
-      d.setDate(today.getDate() - i);
-      const label = format(d, 'MMM dd');
-      const value = Math.floor(Math.random() * 50) + 10; // placeholder
-      series.push({ date: label, tickets: value });
-    }
-    return series;
-  }, [events]);
 
   const processRefund = async (ticketId) => {
     try {
@@ -94,7 +90,7 @@ const OrganizerSales = () => {
                         <YAxis />
                         <CartesianGrid strokeDasharray="3 3" />
                         <Tooltip />
-                        <Area type="monotone" dataKey="tickets" stroke="#1976d2" fillOpacity={1} fill="url(#colorT)" />
+                        <Area type="monotone" dataKey="ticketsSold" stroke="#1976d2" fillOpacity={1} fill="url(#colorT)" />
                       </AreaChart>
                     </ResponsiveContainer>
                   </Box>

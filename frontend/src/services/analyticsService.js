@@ -8,5 +8,9 @@ export const analyticsService = {
   async getEventMetrics(eventId) {
     const { data } = await api.get(`/analytics/event/${eventId}`);
     return data;
+  },
+  async getOrganizerSalesByDate(days = 7) {
+    const { data } = await api.get('/analytics/organizer/sales-by-date', { params: { days } });
+    return data;
   }
 };

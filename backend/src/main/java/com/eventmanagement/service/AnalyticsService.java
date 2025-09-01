@@ -1,24 +1,37 @@
 package com.eventmanagement.service;
 
+import com.eventmanagement.dto.DailySales;
 import com.eventmanagement.model.Event;
 import com.eventmanagement.model.Ticket;
 import com.eventmanagement.repository.EventRepository;
 import com.eventmanagement.repository.TicketRepository;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
 @Service
 public class AnalyticsService {
 	private final EventRepository eventRepository;
 	private final TicketRepository ticketRepository;
+	private final MongoTemplate mongoTemplate;
 
-	public AnalyticsService(EventRepository eventRepository, TicketRepository ticketRepository) {
+	public AnalyticsService(EventRepository eventRepository, TicketRepository ticketRepository, MongoTemplate mongoTemplate) {
 		this.eventRepository = eventRepository;
 		this.ticketRepository = ticketRepository;
+		this.mongoTemplate = mongoTemplate;
 	}
 
 	public Map<String, Object> getEventMetrics(String eventId) {
@@ -60,5 +73,31 @@ public class AnalyticsService {
 		res.put("ticketsSold", ticketsSold);
 		res.put("revenue", revenue);
 		return res;
+	}
+
+	public List<DailySales> getOrganizerSalesByDate(String organizerId, int days) {
+		List<String> eventIds = eventRepository.findByOrganizerId(organizerId)
+				.stream()
+				.map(Event::getId)
+				.collect(Collectors.toList());
+
+		if (eventIds.isEmpty()) {
+			return List.of();
+		}
+
+		LocalDateTime endDate = LocalDateTime.now();
+		LocalDateTime startDate = endDate.minusDays(days);
+
+		Aggregation aggregation = newAggregation(
+				match(Criteria.where("eventId").in(eventIds)
+						.and("purchaseDate").gte(startDate).lte(endDate)),
+				project()
+						.andExpression("{$dateToString: { format: '%Y-%m-%d', date: '$purchaseDate' }}").as("date"),
+				group("date").count().as("ticketsSold"),
+				project("ticketsSold").and("date").previousOperation()
+		);
+
+		AggregationResults<DailySales> results = mongoTemplate.aggregate(aggregation, "tickets", DailySales.class);
+		return results.getMappedResults();
 	}
 }

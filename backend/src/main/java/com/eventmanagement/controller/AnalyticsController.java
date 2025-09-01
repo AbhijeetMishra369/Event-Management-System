@@ -25,4 +25,9 @@ public class AnalyticsController {
 	public ResponseEntity<Map<String, Object>> eventMetrics(@PathVariable String eventId) {
 		return ResponseEntity.ok(analyticsService.getEventMetrics(eventId));
 	}
+
+	@GetMapping("/organizer/sales-by-date")
+	public ResponseEntity<?> salesByDate(@AuthenticationPrincipal UserDetails user, @RequestParam(defaultValue = "7") int days) {
+		return ResponseEntity.ok(analyticsService.getOrganizerSalesByDate(user.getUsername(), days));
+	}
 }
