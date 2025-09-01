@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Box, Typography, Container, Card, CardContent, Tabs, Tab, Grid, Button, Alert, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 import { ticketService } from '../services/ticketService';
 import { eventService } from '../services/eventService';
+import { analyticsService } from '../services/analyticsService';
 import { format } from 'date-fns';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from 'recharts';
 
@@ -9,6 +10,7 @@ const OrganizerSales = () => {
   const [tab, setTab] = useState(0);
   const [refunds, setRefunds] = useState([]);
   const [events, setEvents] = useState([]);
+  const [overview, setOverview] = useState(null);
   const [info, setInfo] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
@@ -17,12 +19,14 @@ const OrganizerSales = () => {
     setLoading(true);
     setError('');
     try {
-      const [refundList, organizerEvents] = await Promise.all([
+      const [refundList, organizerEvents, ov] = await Promise.all([
         ticketService.getRefundRequestedTickets(),
-        eventService.getOrganizerEvents()
+        eventService.getOrganizerEvents(),
+        analyticsService.getOrganizerOverview(),
       ]);
       setRefunds(refundList || []);
       setEvents(organizerEvents || []);
+      setOverview(ov || null);
     } catch (e) {
       setError(e.message);
     } finally {
@@ -33,14 +37,13 @@ const OrganizerSales = () => {
   useEffect(() => { load(); }, []);
 
   const salesData = useMemo(() => {
-    // Mock simple series using events' analytics if present; else counts
     const today = new Date();
     const series = [];
     for (let i = 6; i >= 0; i--) {
       const d = new Date(today);
       d.setDate(today.getDate() - i);
       const label = format(d, 'MMM dd');
-      const value = Math.floor(Math.random() * 50) + 10; // placeholder if backend analytics not wired
+      const value = Math.floor(Math.random() * 50) + 10; // placeholder
       series.push({ date: label, tickets: value });
     }
     return series;
@@ -101,14 +104,24 @@ const OrganizerSales = () => {
             <Grid item xs={12} md={4}>
               <Card>
                 <CardContent>
-                  <Typography variant="h6" sx={{ mb: 2 }}>Your Events</Typography>
+                  <Typography variant="h6" sx={{ mb: 2 }}>Overview</Typography>
                   <Box sx={{ display: 'grid', gap: 1 }}>
-                    {events.map((e) => (
-                      <Box key={e.id} sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <Typography variant="body2" sx={{ fontWeight: 600 }}>{e.name}</Typography>
-                        <Typography variant="body2" color="text.secondary">{format(new Date(e.eventDate), 'MMM dd')}</Typography>
-                      </Box>
-                    ))}
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <Typography variant="body2">Total Events</Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 700 }}>{overview?.totalEvents ?? '-'}</Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <Typography variant="body2">Active Events</Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 700 }}>{overview?.activeEvents ?? '-'}</Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <Typography variant="body2">Tickets Sold</Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 700 }}>{overview?.ticketsSold ?? '-'}</Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <Typography variant="body2">Revenue</Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 700 }}>₹ {overview?.revenue ?? '-'}</Typography>
+                    </Box>
                   </Box>
                 </CardContent>
               </Card>

@@ -47,7 +47,7 @@ function App() {
               <Route path="/events" element={<EventList />} />
               <Route path="/events/:id" element={<EventDetail />} />
               <Route path="/create-event" element={
-                <ProtectedRoute>
+                <ProtectedRoute roles={["ORGANIZER","ADMIN"]}>
                   <CreateEvent />
                 </ProtectedRoute>
               } />
@@ -57,7 +57,7 @@ function App() {
                 </ProtectedRoute>
               } />
               <Route path="/validate-tickets" element={
-                <ProtectedRoute>
+                <ProtectedRoute roles={["STAFF","ORGANIZER","ADMIN"]}>
                   <TicketValidation />
                 </ProtectedRoute>
               } />
@@ -72,12 +72,12 @@ function App() {
                 </ProtectedRoute>
               } />
               <Route path="/organizer/sales" element={
-                <ProtectedRoute>
+                <ProtectedRoute roles={["ORGANIZER","ADMIN"]}>
                   <OrganizerSales />
                 </ProtectedRoute>
               } />
               <Route path="/organizer/attendees" element={
-                <ProtectedRoute>
+                <ProtectedRoute roles={["ORGANIZER","ADMIN"]}>
                   <OrganizerAttendees />
                 </ProtectedRoute>
               } />
