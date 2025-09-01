@@ -85,8 +85,8 @@ const Layout = ({ children }) => {
     { label: 'Create Event', path: '/create-event', protected: true, icon: <AddIcon /> },
     { label: 'My Tickets', path: '/my-tickets', protected: true, icon: <TicketIcon /> },
     { label: 'Validate Tickets', path: '/validate-tickets', protected: true, icon: <ScannerIcon /> },
-    // Organizer Sales visible to authenticated users (role check can be added when roles are surfaced in frontend)
     { label: 'Sales', path: '/organizer/sales', protected: true, icon: <DashboardIcon /> },
+    { label: 'Attendees', path: '/organizer/attendees', protected: true, icon: <DashboardIcon /> },
   ];
 
   const renderNavItems = () => {
