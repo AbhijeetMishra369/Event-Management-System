@@ -3,6 +3,7 @@ import { Box, Typography, Container, Grid, Card, CardContent, TextField, Button,
 import { Add as AddIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { eventService } from '../services/eventService';
 import { useNavigate } from 'react-router-dom';
+import api from '../services/api';
 
 const CreateEvent = () => {
   const navigate = useNavigate();
@@ -27,6 +28,7 @@ const CreateEvent = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [info, setInfo] = useState('');
+  const [uploading, setUploading] = useState(false);
 
   const updateField = (key, value) => setForm(prev => ({ ...prev, [key]: value }));
 
@@ -36,6 +38,23 @@ const CreateEvent = () => {
 
   const addTicketType = () => setTicketTypes(prev => [...prev, { name: '', price: '', totalQuantity: '', active: true }]);
   const removeTicketType = (idx) => setTicketTypes(prev => prev.filter((_, i) => i !== idx));
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const { data } = await api.post('/upload/image', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+      updateField('eventImage', data.url);
+      setInfo('Image uploaded');
+    } catch (err) {
+      setError('Image upload failed');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleSubmit = async () => {
     setError('');
@@ -122,7 +141,13 @@ const CreateEvent = () => {
                     <TextField label="Country" fullWidth value={form.country} onChange={(e) => updateField('country', e.target.value)} />
                   </Grid>
                   <Grid item xs={12} md={6}>
-                    <TextField label="Image URL" fullWidth value={form.eventImage} onChange={(e) => updateField('eventImage', e.target.value)} />
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Button variant="outlined" component="label" disabled={uploading}>
+                        {uploading ? 'Uploading...' : 'Upload Image'}
+                        <input hidden type="file" accept="image/*" onChange={handleImageUpload} />
+                      </Button>
+                      {form.eventImage && <Typography variant="caption">{form.eventImage}</Typography>}
+                    </Box>
                   </Grid>
                   <Grid item xs={12} md={6}>
                     <TextField label="Category" fullWidth value={form.category} onChange={(e) => updateField('category', e.target.value)} />

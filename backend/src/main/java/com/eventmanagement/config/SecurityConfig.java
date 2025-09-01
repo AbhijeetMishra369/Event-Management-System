@@ -40,6 +40,7 @@ public class SecurityConfig {
                 .requestMatchers("/events/public/**").permitAll()
                 .requestMatchers("/tickets/validate").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                .requestMatchers("/uploads/**").permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
