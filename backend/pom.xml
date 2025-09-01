@@ -118,11 +118,18 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- Add springdoc-openapi-starter-webmvc-ui for Swagger/OpenAPI -->
+        <!-- OpenAPI / Swagger UI -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>2.5.0</version>
+        </dependency>
+
+        <!-- Razorpay Java SDK -->
+        <dependency>
+            <groupId>com.razorpay</groupId>
+            <artifactId>razorpay-java</artifactId>
+            <version>1.4.5</version>
         </dependency>
     </dependencies>
 

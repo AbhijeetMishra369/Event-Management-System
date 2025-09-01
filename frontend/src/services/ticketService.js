@@ -117,4 +117,13 @@ export const ticketService = {
       throw new Error(error.response?.data?.message || 'Failed to generate QR code');
     }
   },
+
+  async validateByNumber(ticketNumber) {
+    const { data } = await api.post('/tickets/validate', { ticketNumber });
+    return data; // expected: { valid: boolean, message?: string }
+  },
+  async validateByQr(qrCode) {
+    const { data } = await api.post('/tickets/validate', { qrCode });
+    return data; // same shape
+  },
 };
