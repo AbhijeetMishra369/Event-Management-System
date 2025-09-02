@@ -51,12 +51,13 @@ public class EventServiceTest {
         organizer.setId("organizer-123");
         organizer.setFirstName("Test");
         organizer.setLastName("Organizer");
+        organizer.setEmail("organizer@test.com");
 
-        when(userRepository.findById("organizer-123")).thenReturn(Optional.of(organizer));
+        when(userRepository.findByEmail("organizer@test.com")).thenReturn(Optional.of(organizer));
         when(eventRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
 
         // When & Then
         // This should not throw a NullPointerException
-        eventService.createEvent(eventRequest, "organizer-123");
+        eventService.createEvent(eventRequest, "organizer@test.com");
     }
 }

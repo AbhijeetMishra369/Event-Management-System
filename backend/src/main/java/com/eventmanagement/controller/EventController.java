@@ -2,6 +2,8 @@ package com.eventmanagement.controller;
 
 import com.eventmanagement.dto.EventRequest;
 import com.eventmanagement.model.Event;
+import com.eventmanagement.model.User;
+import com.eventmanagement.repository.UserRepository;
 import com.eventmanagement.service.EventService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,9 @@ public class EventController {
     
     @Autowired
     private EventService eventService;
+
+    @Autowired
+    private UserRepository userRepository;
     
     // Public endpoints
     @GetMapping("/public")
@@ -85,9 +90,9 @@ public class EventController {
     @PreAuthorize("hasAnyRole('ORGANIZER', 'ADMIN')")
     public ResponseEntity<Event> createEvent(@Valid @RequestBody EventRequest eventRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String organizerId = authentication.getName(); // This should be the user ID
+        String organizerEmail = authentication.getName();
         
-        Event event = eventService.createEvent(eventRequest, organizerId);
+        Event event = eventService.createEvent(eventRequest, organizerEmail);
         return ResponseEntity.ok(event);
     }
     
@@ -97,10 +102,11 @@ public class EventController {
             @PathVariable String id,
             @Valid @RequestBody EventRequest eventRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String organizerId = authentication.getName();
+        String organizerEmail = authentication.getName();
+        User user = userRepository.findByEmail(organizerEmail).orElseThrow(() -> new RuntimeException("User not found"));
         
         try {
-            Event event = eventService.updateEvent(id, eventRequest, organizerId);
+            Event event = eventService.updateEvent(id, eventRequest, user.getId());
             return ResponseEntity.ok(event);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();
@@ -111,10 +117,11 @@ public class EventController {
     @PreAuthorize("hasAnyRole('ORGANIZER', 'ADMIN')")
     public ResponseEntity<Event> publishEvent(@PathVariable String id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String organizerId = authentication.getName();
+        String organizerEmail = authentication.getName();
+        User user = userRepository.findByEmail(organizerEmail).orElseThrow(() -> new RuntimeException("User not found"));
         
         try {
-            Event event = eventService.publishEvent(id, organizerId);
+            Event event = eventService.publishEvent(id, user.getId());
             return ResponseEntity.ok(event);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();
@@ -125,10 +132,11 @@ public class EventController {
     @PreAuthorize("hasAnyRole('ORGANIZER', 'ADMIN')")
     public ResponseEntity<Event> cancelEvent(@PathVariable String id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String organizerId = authentication.getName();
+        String organizerEmail = authentication.getName();
+        User user = userRepository.findByEmail(organizerEmail).orElseThrow(() -> new RuntimeException("User not found"));
         
         try {
-            Event event = eventService.cancelEvent(id, organizerId);
+            Event event = eventService.cancelEvent(id, user.getId());
             return ResponseEntity.ok(event);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();
@@ -139,10 +147,11 @@ public class EventController {
     @PreAuthorize("hasAnyRole('ORGANIZER', 'ADMIN')")
     public ResponseEntity<Void> deleteEvent(@PathVariable String id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String organizerId = authentication.getName();
+        String organizerEmail = authentication.getName();
+        User user = userRepository.findByEmail(organizerEmail).orElseThrow(() -> new RuntimeException("User not found"));
         
         try {
-            eventService.deleteEvent(id, organizerId);
+            eventService.deleteEvent(id, user.getId());
             return ResponseEntity.ok().build();
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();
@@ -155,10 +164,11 @@ public class EventController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String organizerId = authentication.getName();
+        String organizerEmail = authentication.getName();
+        User user = userRepository.findByEmail(organizerEmail).orElseThrow(() -> new RuntimeException("User not found"));
         
         Pageable pageable = PageRequest.of(page, size);
-        return ResponseEntity.ok(eventService.getOrganizerEvents(organizerId, pageable));
+        return ResponseEntity.ok(eventService.getOrganizerEvents(user.getId(), pageable));
     }
     
     @PostMapping("/{id}/feature")
