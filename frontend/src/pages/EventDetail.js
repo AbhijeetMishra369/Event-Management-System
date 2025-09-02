@@ -124,8 +124,11 @@ const EventDetail = () => {
   if (loading) {
     return (
       <Container maxWidth="lg">
-        <Box sx={{ py: 4 }}>
-          <Typography>Loading event...</Typography>
+        <Box sx={{ py: 8, textAlign: 'center' }}>
+          <CircularProgress size={60} sx={{ mb: 2 }} />
+          <Typography variant="h6" color="text.secondary">
+            Loading event details...
+          </Typography>
         </Box>
       </Container>
     );
@@ -134,8 +137,10 @@ const EventDetail = () => {
   if (error || !event) {
     return (
       <Container maxWidth="lg">
-        <Box sx={{ py: 4 }}>
-          <Alert severity="error">{error || 'Event not found'}</Alert>
+        <Box sx={{ py: 8, textAlign: 'center' }}>
+          <Alert severity="error" sx={{ maxWidth: 600, mx: 'auto' }}>
+            {error || 'Event not found'}
+          </Alert>
         </Box>
       </Container>
     );
@@ -146,64 +151,195 @@ const EventDetail = () => {
       <Box sx={{ py: 4 }}>
         <Grid container spacing={4}>
           <Grid item xs={12} md={7}>
-            <Card>
+            <Card elevation={3} sx={{ borderRadius: 2, overflow: 'hidden' }}>
               {event.eventImage && (
-                <CardMedia component="img" height="360" image={event.eventImage} alt={event.name} />
+                <CardMedia 
+                  component="img" 
+                  height="400" 
+                  image={event.eventImage.startsWith('http') ? event.eventImage : `${process.env.REACT_APP_API_URL || '/api'}${event.eventImage}`} 
+                  alt={event.name}
+                  sx={{ objectFit: 'cover' }}
+                />
               )}
-              <CardContent>
-                <Typography variant="h4" sx={{ fontWeight: 700 }} gutterBottom>
+              <CardContent sx={{ p: 4 }}>
+                <Typography variant="h3" sx={{ fontWeight: 700, mb: 2 }} gutterBottom>
                   {event.name}
                 </Typography>
-                <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+                <Typography variant="body1" color="text.secondary" sx={{ mb: 3, fontSize: '1.1rem', lineHeight: 1.6 }}>
                   {event.description}
                 </Typography>
-                <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
-                  {event.tags?.map((tag) => (
-                    <Chip key={tag} label={tag} size="small" />
-                  ))}
-                </Stack>
+                
+                {/* Event Details */}
+                <Box sx={{ mb: 3, p: 3, bgcolor: 'grey.50', borderRadius: 2 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+                    📅 Event Details
+                  </Typography>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} sm={6}>
+                      <Typography variant="body2" color="text.secondary">Start Date</Typography>
+                      <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                        {new Date(event.eventDate).toLocaleDateString('en-US', {
+                          weekday: 'long',
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </Typography>
+                    </Grid>
+                    {event.endDate && (
+                      <Grid item xs={12} sm={6}>
+                        <Typography variant="body2" color="text.secondary">End Date</Typography>
+                        <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                          {new Date(event.endDate).toLocaleDateString('en-US', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </Typography>
+                      </Grid>
+                    )}
+                  </Grid>
+                </Box>
+                
+                {/* Location Details */}
+                <Box sx={{ mb: 3, p: 3, bgcolor: 'grey.50', borderRadius: 2 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+                    📍 Location
+                  </Typography>
+                  <Typography variant="body1" sx={{ fontWeight: 500, mb: 1 }}>
+                    {event.venue}
+                  </Typography>
+                  {event.address && (
+                    <Typography variant="body2" color="text.secondary">
+                      {event.address}
+                    </Typography>
+                  )}
+                  <Typography variant="body2" color="text.secondary">
+                    {[event.city, event.state, event.country].filter(Boolean).join(', ')}
+                  </Typography>
+                </Box>
+                
+                {/* Tags */}
+                {event.tags && event.tags.length > 0 && (
+                  <Box sx={{ mb: 3 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+                      Tags
+                    </Typography>
+                    <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', gap: 1 }}>
+                      {event.tags.map((tag) => (
+                        <Chip key={tag} label={tag} size="medium" color="primary" variant="outlined" />
+                      ))}
+                    </Stack>
+                  </Box>
+                )}
               </CardContent>
             </Card>
           </Grid>
           <Grid item xs={12} md={5}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-                  Purchase Tickets
+            <Card elevation={3} sx={{ borderRadius: 2, position: 'sticky', top: 24 }}>
+              <CardContent sx={{ p: 4 }}>
+                <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, textAlign: 'center' }}>
+                  🎫 Purchase Tickets
                 </Typography>
-                {purchaseError && <Alert severity="error" sx={{ mb: 2 }}>{purchaseError}</Alert>}
-                {purchaseSuccess && <Alert severity="success" sx={{ mb: 2 }}>{purchaseSuccess}</Alert>}
-                <TextField
-                  select
-                  fullWidth
-                  label="Ticket Type"
-                  value={ticketTypeId}
-                  onChange={(e) => setTicketTypeId(e.target.value)}
-                  sx={{ mb: 2 }}
-                >
-                  {event.ticketTypes?.filter(t => t.active).map((t) => (
-                    <MenuItem key={t.id} value={t.id} disabled={t.saleEndDate && new Date(t.saleEndDate) < new Date()}>
-                      {t.name} — ₹{t.price.toFixed(2)} (Available: {t.availableQuantity})
-                      {t.saleEndDate && <Typography variant="caption" sx={{ ml: 1 }}>Sales end: {new Date(t.saleEndDate).toLocaleDateString()}</Typography>}
-                    </MenuItem>
-                  ))}
-                </TextField>
-                <TextField
-                  type="number"
-                  fullWidth
-                  label="Quantity"
-                  value={quantity}
-                  onChange={(e) => setQuantity(Math.max(1, Number(e.target.value)))}
-                  inputProps={{ min: 1 }}
-                  sx={{ mb: 2 }}
-                />
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                  <Typography variant="body1">Total</Typography>
-                  <Typography variant="h6" sx={{ fontWeight: 700 }}>₹ {totalPrice.toFixed(2)}</Typography>
+                
+                {purchaseError && <Alert severity="error" sx={{ mb: 3 }}>{purchaseError}</Alert>}
+                {purchaseSuccess && <Alert severity="success" sx={{ mb: 3 }}>{purchaseSuccess}</Alert>}
+                
+                <Box sx={{ mb: 3 }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
+                    Select Ticket Type
+                  </Typography>
+                  <TextField
+                    select
+                    fullWidth
+                    label="Ticket Type"
+                    value={ticketTypeId}
+                    onChange={(e) => setTicketTypeId(e.target.value)}
+                    variant="outlined"
+                    size="medium"
+                  >
+                    {event.ticketTypes?.filter(t => t.active).map((t) => (
+                      <MenuItem key={t.id} value={t.id} disabled={t.saleEndDate && new Date(t.saleEndDate) < new Date()}>
+                        <Box>
+                          <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                            {t.name}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            ₹{t.price.toFixed(2)} • Available: {t.availableQuantity}
+                          </Typography>
+                          {t.saleEndDate && (
+                            <Typography variant="caption" color="error">
+                              Sales end: {new Date(t.saleEndDate).toLocaleDateString()}
+                            </Typography>
+                          )}
+                        </Box>
+                      </MenuItem>
+                    ))}
+                  </TextField>
                 </Box>
-                <Button variant="contained" fullWidth onClick={handlePurchase} sx={{ py: 1.5 }} disabled={selectedType && selectedType.saleEndDate && new Date(selectedType.saleEndDate) < new Date()}>
-                  {selectedType && selectedType.saleEndDate && new Date(selectedType.saleEndDate) < new Date() ? 'Sales Ended' : 'Pay with Razorpay'}
+                
+                <Box sx={{ mb: 3 }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
+                    Quantity
+                  </Typography>
+                  <TextField
+                    type="number"
+                    fullWidth
+                    label="Number of tickets"
+                    value={quantity}
+                    onChange={(e) => setQuantity(Math.max(1, Number(e.target.value)))}
+                    inputProps={{ min: 1, max: selectedType?.availableQuantity || 10 }}
+                    variant="outlined"
+                    size="medium"
+                  />
+                </Box>
+                
+                <Box sx={{ p: 3, bgcolor: 'primary.50', borderRadius: 2, mb: 3 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                      Total Amount
+                    </Typography>
+                    <Typography variant="h4" sx={{ fontWeight: 700, color: 'primary.main' }}>
+                      ₹{totalPrice.toFixed(2)}
+                    </Typography>
+                  </Box>
+                  {selectedType && (
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                      {quantity} × {selectedType.name} @ ₹{selectedType.price.toFixed(2)}
+                    </Typography>
+                  )}
+                </Box>
+                
+                <Button 
+                  variant="contained" 
+                  fullWidth 
+                  onClick={handlePurchase} 
+                  size="large"
+                  sx={{ 
+                    py: 2, 
+                    fontWeight: 600,
+                    fontSize: '1.1rem',
+                    background: 'linear-gradient(45deg, #2e7d32, #4caf50)',
+                    '&:hover': {
+                      background: 'linear-gradient(45deg, #1b5e20, #2e7d32)',
+                    }
+                  }}
+                  disabled={selectedType && selectedType.saleEndDate && new Date(selectedType.saleEndDate) < new Date()}
+                >
+                  {selectedType && selectedType.saleEndDate && new Date(selectedType.saleEndDate) < new Date() 
+                    ? 'Sales Ended' 
+                    : 'Pay with Razorpay'
+                  }
                 </Button>
+                
+                <Typography variant="caption" color="text.secondary" sx={{ mt: 2, display: 'block', textAlign: 'center' }}>
+                  Secure payment powered by Razorpay
+                </Typography>
               </CardContent>
             </Card>
           </Grid>

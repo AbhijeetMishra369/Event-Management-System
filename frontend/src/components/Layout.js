@@ -127,11 +127,25 @@ const Layout = ({ children }) => {
             fontWeight: isActive(item.path) ? 600 : 400,
             '&:hover': {
               backgroundColor: 'rgba(25, 118, 210, 0.04)',
+              transform: 'translateY(-1px)',
             },
             textTransform: 'none',
             borderRadius: 2,
-            px: 2,
-            py: 1,
+            px: 3,
+            py: 1.5,
+            transition: 'all 0.2s ease-in-out',
+            position: 'relative',
+            '&::after': isActive(item.path) ? {
+              content: '""',
+              position: 'absolute',
+              bottom: 0,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              width: '60%',
+              height: 2,
+              backgroundColor: 'primary.main',
+              borderRadius: 1,
+            } : {},
           }}
         >
           {item.label}
@@ -241,10 +255,11 @@ const Layout = ({ children }) => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <AppBar 
-        position="static" 
+        position="sticky" 
         elevation={0} 
         sx={{ 
-          backgroundColor: 'white', 
+          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+          backdropFilter: 'blur(10px)',
           color: 'text.primary',
           borderBottom: '1px solid',
           borderColor: 'grey.200',
@@ -274,13 +289,29 @@ const Layout = ({ children }) => {
               }}
               onClick={() => navigate('/')}
             >
-              <EventIcon sx={{ mr: 1, color: 'primary.main' }} />
-              <Typography
-                variant="h6"
+              <Box
                 sx={{
-                  fontWeight: 700,
-                  color: 'primary.main',
-                  textDecoration: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 40,
+                  height: 40,
+                  borderRadius: 2,
+                  background: 'linear-gradient(45deg, #1976d2, #42a5f5)',
+                  mr: 2
+                }}
+              >
+                <EventIcon sx={{ fontSize: 24, color: 'white' }} />
+              </Box>
+              <Typography
+                variant="h5"
+                sx={{
+                  fontWeight: 800,
+                  background: 'linear-gradient(45deg, #1976d2, #42a5f5)',
+                  backgroundClip: 'text',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  letterSpacing: '-0.5px'
                 }}
               >
                 EventHub

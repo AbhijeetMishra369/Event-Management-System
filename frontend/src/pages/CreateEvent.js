@@ -42,15 +42,36 @@ const CreateEvent = () => {
   const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    
+    // Validate file type and size
+    if (!file.type.startsWith('image/')) {
+      setError('Please select a valid image file');
+      return;
+    }
+    
+    if (file.size > 5 * 1024 * 1024) { // 5MB limit
+      setError('Image size should be less than 5MB');
+      return;
+    }
+
     setUploading(true);
+    setError('');
     try {
       const formData = new FormData();
       formData.append('file', file);
-      const { data } = await api.post('/upload/image', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
-      updateField('eventImage', data.url);
-      setInfo('Image uploaded');
+      const { data } = await api.post('/upload/image', formData, { 
+        headers: { 'Content-Type': 'multipart/form-data' } 
+      });
+      
+      // Construct full URL for the image
+      const baseURL = process.env.REACT_APP_API_URL || '/api';
+      const fullImageUrl = data.url.startsWith('http') ? data.url : `${baseURL}${data.url}`;
+      
+      updateField('eventImage', fullImageUrl);
+      setInfo('Image uploaded successfully!');
     } catch (err) {
-      setError('Image upload failed');
+      setError('Image upload failed. Please try again.');
+      console.error('Upload error:', err);
     } finally {
       setUploading(false);
     }
@@ -146,8 +167,27 @@ const CreateEvent = () => {
                         {uploading ? 'Uploading...' : 'Upload Image'}
                         <input hidden type="file" accept="image/*" onChange={handleImageUpload} />
                       </Button>
-                      {form.eventImage && <Typography variant="caption">{form.eventImage}</Typography>}
                     </Box>
+                  </Grid>
+                  <Grid item xs={12}>
+                    {form.eventImage && (
+                      <Box sx={{ textAlign: 'center', mt: 2 }}>
+                        <Typography variant="subtitle2" sx={{ mb: 2 }}>Image Preview:</Typography>
+                        <Box
+                          component="img"
+                          src={form.eventImage}
+                          alt="Event preview"
+                          sx={{
+                            maxWidth: '100%',
+                            maxHeight: 200,
+                            borderRadius: 2,
+                            border: '2px solid',
+                            borderColor: 'grey.200',
+                            objectFit: 'cover'
+                          }}
+                        />
+                      </Box>
+                    )}
                   </Grid>
                   <Grid item xs={12} md={6}>
                     <TextField label="Category" fullWidth value={form.category} onChange={(e) => updateField('category', e.target.value)} />
