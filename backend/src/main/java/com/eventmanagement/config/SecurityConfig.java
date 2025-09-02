@@ -43,7 +43,9 @@ public class SecurityConfig {
                 .requestMatchers("/uploads/**").permitAll()
                 .anyRequest().authenticated()
             )
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .securityContext(securityContext -> securityContext.requireExplicitSave(false))
+            .headers(headers -> headers.frameOptions().disable());
         
         return http.build();
     }

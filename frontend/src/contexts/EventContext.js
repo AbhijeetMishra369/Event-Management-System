@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useCallback } from 'react';
 import { eventService } from '../services/eventService';
 
 const EventContext = createContext();
@@ -17,7 +17,7 @@ export const EventProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchEvents = async (params = {}) => {
+  const fetchEvents = useCallback(async (params = {}) => {
     try {
       setLoading(true);
       setError(null);
@@ -30,9 +30,9 @@ export const EventProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const fetchFeaturedEvents = async () => {
+  const fetchFeaturedEvents = useCallback(async () => {
     try {
       setError(null);
       const data = await eventService.getFeaturedEvents();
@@ -42,9 +42,9 @@ export const EventProvider = ({ children }) => {
       setError(err.message || 'Failed to fetch featured events');
       throw err;
     }
-  };
+  }, []);
 
-  const createEvent = async (eventData) => {
+  const createEvent = useCallback(async (eventData) => {
     try {
       setLoading(true);
       setError(null);
@@ -57,9 +57,9 @@ export const EventProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const updateEvent = async (eventId, eventData) => {
+  const updateEvent = useCallback(async (eventId, eventData) => {
     try {
       setLoading(true);
       setError(null);
@@ -74,9 +74,9 @@ export const EventProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const deleteEvent = async (eventId) => {
+  const deleteEvent = useCallback(async (eventId) => {
     try {
       setLoading(true);
       setError(null);
@@ -88,9 +88,9 @@ export const EventProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const publishEvent = async (eventId) => {
+  const publishEvent = useCallback(async (eventId) => {
     try {
       setError(null);
       const publishedEvent = await eventService.publishEvent(eventId);
@@ -102,9 +102,9 @@ export const EventProvider = ({ children }) => {
       setError(err.message || 'Failed to publish event');
       throw err;
     }
-  };
+  }, []);
 
-  const cancelEvent = async (eventId) => {
+  const cancelEvent = useCallback(async (eventId) => {
     try {
       setError(null);
       const cancelledEvent = await eventService.cancelEvent(eventId);
@@ -116,9 +116,9 @@ export const EventProvider = ({ children }) => {
       setError(err.message || 'Failed to cancel event');
       throw err;
     }
-  };
+  }, []);
 
-  const searchEvents = async (query, params = {}) => {
+  const searchEvents = useCallback(async (query, params = {}) => {
     try {
       setLoading(true);
       setError(null);
@@ -131,9 +131,9 @@ export const EventProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const getEventById = async (eventId) => {
+  const getEventById = useCallback(async (eventId) => {
     try {
       setError(null);
       return await eventService.getEventById(eventId);
@@ -141,7 +141,7 @@ export const EventProvider = ({ children }) => {
       setError(err.message || 'Failed to fetch event');
       throw err;
     }
-  };
+  }, []);
 
   const value = {
     events,

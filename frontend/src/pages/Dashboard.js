@@ -42,7 +42,7 @@ const Dashboard = () => {
     if (user?.role === 'ORGANIZER') {
       fetchEvents();
     }
-  }, [fetchEvents, user]);
+  }, [user]); // fetchEvents is now memoized, so we don't need it in dependencies
 
   useEffect(() => {
     // Calculate stats from events

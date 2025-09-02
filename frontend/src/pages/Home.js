@@ -39,7 +39,7 @@ const Home = () => {
 
   useEffect(() => {
     fetchFeaturedEvents();
-  }, [fetchFeaturedEvents]);
+  }, []); // Empty dependency array since fetchFeaturedEvents is now memoized
 
   const handleGetStarted = () => {
     if (isAuthenticated) {
