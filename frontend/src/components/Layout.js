@@ -82,16 +82,41 @@ const Layout = ({ children }) => {
     { label: 'Home', path: '/', icon: <HomeIcon /> },
     { label: 'Events', path: '/events', icon: <EventIcon /> },
     { label: 'Dashboard', path: '/dashboard', protected: true, icon: <DashboardIcon /> },
-    { label: 'Create Event', path: '/create-event', protected: true, icon: <AddIcon /> },
+    {
+      label: 'Create Event',
+      path: '/create-event',
+      protected: true,
+      roles: ['ORGANIZER', 'ADMIN'],
+      icon: <AddIcon />
+    },
     { label: 'My Tickets', path: '/my-tickets', protected: true, icon: <TicketIcon /> },
-    { label: 'Validate Tickets', path: '/validate-tickets', protected: true, icon: <ScannerIcon /> },
-    { label: 'Sales', path: '/organizer/sales', protected: true, icon: <DashboardIcon /> },
-    { label: 'Attendees', path: '/organizer/attendees', protected: true, icon: <DashboardIcon /> },
+    {
+      label: 'Validate Tickets',
+      path: '/validate-tickets',
+      protected: true,
+      roles: ['STAFF', 'ORGANIZER', 'ADMIN'],
+      icon: <ScannerIcon />
+    },
+    {
+      label: 'Sales',
+      path: '/organizer/sales',
+      protected: true,
+      roles: ['ORGANIZER', 'ADMIN'],
+      icon: <DashboardIcon />
+    },
+    {
+      label: 'Attendees',
+      path: '/organizer/attendees',
+      protected: true,
+      roles: ['ORGANIZER', 'ADMIN'],
+      icon: <DashboardIcon />
+    },
   ];
 
   const renderNavItems = () => {
     return navItems.map((item) => {
       if (item.protected && !isAuthenticated) return null;
+      if (item.roles && !item.roles.includes(user?.role)) return null;
       return (
         <Button
           key={item.path}
@@ -156,6 +181,7 @@ const Layout = ({ children }) => {
         <List>
           {navItems.map((item) => {
             if (item.protected && !isAuthenticated) return null;
+            if (item.roles && !item.roles.includes(user?.role)) return null;
             return (
               <ListItem
                 key={item.path}

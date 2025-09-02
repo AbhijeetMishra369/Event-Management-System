@@ -263,29 +263,31 @@ const Home = () => {
               Join thousands of organizers who trust EventHub for their event management needs.
             </Typography>
             <Stack direction="row" spacing={2} justifyContent="center" flexWrap="wrap">
-              <Button
-                variant="contained"
-                size="large"
-                onClick={handleGetStarted}
-                sx={{
-                  backgroundColor: 'white',
-                  color: 'primary.main',
-                  px: 4,
-                  py: 1.5,
-                  borderRadius: 2,
-                  textTransform: 'none',
-                  fontWeight: 600,
-                  fontSize: '1.1rem',
-                  '&:hover': {
-                    backgroundColor: 'grey.100',
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 8px 25px rgba(0,0,0,0.2)',
-                  },
-                  transition: 'all 0.3s ease',
-                }}
-              >
-                Start Creating Events
-              </Button>
+              {(!isAuthenticated || (user && (user.role === 'ORGANIZER' || user.role === 'ADMIN'))) && (
+                <Button
+                  variant="contained"
+                  size="large"
+                  onClick={handleGetStarted}
+                  sx={{
+                    backgroundColor: 'white',
+                    color: 'primary.main',
+                    px: 4,
+                    py: 1.5,
+                    borderRadius: 2,
+                    textTransform: 'none',
+                    fontWeight: 600,
+                    fontSize: '1.1rem',
+                    '&:hover': {
+                      backgroundColor: 'grey.100',
+                      transform: 'translateY(-2px)',
+                      boxShadow: '0 8px 25px rgba(0,0,0,0.2)',
+                    },
+                    transition: 'all 0.3s ease',
+                  }}
+                >
+                  Start Creating Events
+                </Button>
+              )}
               <Button
                 variant="outlined"
                 size="large"
