@@ -26,8 +26,8 @@ public class EventService {
     @Autowired
     private UserRepository userRepository;
     
-    public Event createEvent(EventRequest eventRequest, String organizerId) {
-        User organizer = userRepository.findById(organizerId)
+    public Event createEvent(EventRequest eventRequest, String organizerEmail) {
+        User organizer = userRepository.findByEmail(organizerEmail)
                 .orElseThrow(() -> new RuntimeException("Organizer not found"));
         
         Event event = new Event();
@@ -45,7 +45,7 @@ public class EventService {
         event.setEventImage(eventRequest.getEventImage());
         event.setCategory(eventRequest.getCategory());
         event.setTags(eventRequest.getTags());
-        event.setOrganizerId(organizerId);
+        event.setOrganizerId(organizer.getId());
         event.setOrganizerName(organizer.getFullName());
         event.setStatus(Event.EventStatus.DRAFT);
         event.setPublished(false);
