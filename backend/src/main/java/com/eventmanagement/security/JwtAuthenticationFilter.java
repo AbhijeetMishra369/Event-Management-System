@@ -26,9 +26,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private UserDetailsService userDetailsService;
     
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String requestURI = request.getRequestURI();
+        return requestURI.startsWith("/api/events/public/") || 
+               requestURI.startsWith("/api/auth/") ||
+               requestURI.startsWith("/api/swagger-ui/") ||
+               requestURI.startsWith("/api/v3/api-docs/") ||
+               requestURI.startsWith("/api/uploads/") ||
+               requestURI.equals("/api/tickets/validate");
+    }
+    
+    @Override
     protected void doFilterInternal(HttpServletRequest request, 
                                   HttpServletResponse response, 
                                   FilterChain filterChain) throws ServletException, IOException {
+        
         try {
             String jwt = getJwtFromRequest(request);
             
@@ -41,9 +53,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+            } else {
+                // Clear any existing authentication for non-authenticated requests
+                SecurityContextHolder.clearContext();
             }
         } catch (Exception ex) {
             logger.error("Could not set user authentication in security context", ex);
+            SecurityContextHolder.clearContext();
         }
         
         filterChain.doFilter(request, response);
