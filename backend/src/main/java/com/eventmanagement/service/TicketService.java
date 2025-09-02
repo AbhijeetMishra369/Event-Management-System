@@ -56,6 +56,11 @@ public class TicketService {
             throw new RuntimeException("Not enough tickets available");
         }
         
+        LocalDateTime now = LocalDateTime.now();
+        if (ticketType.getSaleEndDate() != null && now.isAfter(ticketType.getSaleEndDate())) {
+            throw new RuntimeException("Ticket sales for this type have ended");
+        }
+
         // Update ticket availability
         ticketType.setSoldQuantity(ticketType.getSoldQuantity() + request.getQuantity());
         ticketType.setAvailableQuantity(ticketType.getAvailableQuantity() - request.getQuantity());
