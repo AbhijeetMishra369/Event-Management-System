@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -81,6 +82,7 @@ public class EventController {
     
     // Protected endpoints
     @PostMapping
+    @PreAuthorize("hasAnyRole('ORGANIZER', 'ADMIN')")
     public ResponseEntity<Event> createEvent(@Valid @RequestBody EventRequest eventRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String organizerId = authentication.getName(); // This should be the user ID
@@ -90,6 +92,7 @@ public class EventController {
     }
     
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ORGANIZER', 'ADMIN')")
     public ResponseEntity<Event> updateEvent(
             @PathVariable String id,
             @Valid @RequestBody EventRequest eventRequest) {
@@ -105,6 +108,7 @@ public class EventController {
     }
     
     @PostMapping("/{id}/publish")
+    @PreAuthorize("hasAnyRole('ORGANIZER', 'ADMIN')")
     public ResponseEntity<Event> publishEvent(@PathVariable String id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String organizerId = authentication.getName();
@@ -118,6 +122,7 @@ public class EventController {
     }
     
     @PostMapping("/{id}/cancel")
+    @PreAuthorize("hasAnyRole('ORGANIZER', 'ADMIN')")
     public ResponseEntity<Event> cancelEvent(@PathVariable String id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String organizerId = authentication.getName();
@@ -131,6 +136,7 @@ public class EventController {
     }
     
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ORGANIZER', 'ADMIN')")
     public ResponseEntity<Void> deleteEvent(@PathVariable String id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String organizerId = authentication.getName();
@@ -144,6 +150,7 @@ public class EventController {
     }
     
     @GetMapping("/organizer")
+    @PreAuthorize("hasAnyRole('ORGANIZER', 'ADMIN')")
     public ResponseEntity<Page<Event>> getOrganizerEvents(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
@@ -155,6 +162,7 @@ public class EventController {
     }
     
     @PostMapping("/{id}/feature")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Event> toggleFeatured(@PathVariable String id) {
         try {
             Event event = eventService.toggleFeatured(id);
