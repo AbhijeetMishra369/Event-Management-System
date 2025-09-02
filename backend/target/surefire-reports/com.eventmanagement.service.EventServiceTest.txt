@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: com.eventmanagement.service.EventServiceTest
--------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.050 s -- in com.eventmanagement.service.EventServiceTest
