@@ -182,8 +182,9 @@ const EventDetail = () => {
                   sx={{ mb: 2 }}
                 >
                   {event.ticketTypes?.filter(t => t.active).map((t) => (
-                    <MenuItem key={t.id} value={t.id}>
+                    <MenuItem key={t.id} value={t.id} disabled={t.saleEndDate && new Date(t.saleEndDate) < new Date()}>
                       {t.name} — ₹{t.price.toFixed(2)} (Available: {t.availableQuantity})
+                      {t.saleEndDate && <Typography variant="caption" sx={{ ml: 1 }}>Sales end: {new Date(t.saleEndDate).toLocaleDateString()}</Typography>}
                     </MenuItem>
                   ))}
                 </TextField>
@@ -200,8 +201,8 @@ const EventDetail = () => {
                   <Typography variant="body1">Total</Typography>
                   <Typography variant="h6" sx={{ fontWeight: 700 }}>₹ {totalPrice.toFixed(2)}</Typography>
                 </Box>
-                <Button variant="contained" fullWidth onClick={handlePurchase} sx={{ py: 1.5 }}>
-                  Pay with Razorpay
+                <Button variant="contained" fullWidth onClick={handlePurchase} sx={{ py: 1.5 }} disabled={selectedType && selectedType.saleEndDate && new Date(selectedType.saleEndDate) < new Date()}>
+                  {selectedType && selectedType.saleEndDate && new Date(selectedType.saleEndDate) < new Date() ? 'Sales Ended' : 'Pay with Razorpay'}
                 </Button>
               </CardContent>
             </Card>
