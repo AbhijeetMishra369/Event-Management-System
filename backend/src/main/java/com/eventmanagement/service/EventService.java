@@ -13,7 +13,9 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class EventService {
@@ -54,8 +56,9 @@ public class EventService {
         // Convert ticket types
         if (eventRequest.getTicketTypes() != null) {
             event.setTicketTypes(eventRequest.getTicketTypes().stream()
+                    .filter(Objects::nonNull)
                     .map(this::convertToTicketType)
-                    .collect(java.util.stream.Collectors.toList()));
+                    .collect(Collectors.toList()));
         }
         
         // Set default settings
@@ -96,8 +99,9 @@ public class EventService {
         
         if (eventRequest.getTicketTypes() != null) {
             event.setTicketTypes(eventRequest.getTicketTypes().stream()
+                    .filter(Objects::nonNull)
                     .map(this::convertToTicketType)
-                    .collect(java.util.stream.Collectors.toList()));
+                    .collect(Collectors.toList()));
         }
         
         if (eventRequest.getSettings() != null) {
