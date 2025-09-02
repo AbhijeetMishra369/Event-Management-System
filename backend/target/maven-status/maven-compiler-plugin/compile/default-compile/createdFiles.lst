@@ -11,14 +11,14 @@ com/eventmanagement/repository/TicketRepository.class
 com/eventmanagement/dto/AuthRequest.class
 com/eventmanagement/service/PaymentService.class
 com/eventmanagement/controller/EventController.class
-com/eventmanagement/model/User$UserRole.class
 com/eventmanagement/config/PaymentConfig.class
+com/eventmanagement/model/User$UserRole.class
 com/eventmanagement/util/QRCodeGenerator.class
 com/eventmanagement/dto/AuthResponse$UserInfo.class
 com/eventmanagement/config/WebConfig.class
 com/eventmanagement/service/MailService.class
-com/eventmanagement/model/Ticket.class
 com/eventmanagement/service/EventService.class
+com/eventmanagement/model/Ticket.class
 com/eventmanagement/dto/AuthResponse.class
 com/eventmanagement/model/Event$TicketType.class
 com/eventmanagement/model/Event$EventSettings.class
@@ -31,8 +31,8 @@ com/eventmanagement/model/Ticket$TicketStatus.class
 com/eventmanagement/repository/EventRepository.class
 com/eventmanagement/security/JwtAuthenticationFilter.class
 com/eventmanagement/controller/TicketController.class
-com/eventmanagement/dto/TicketPurchaseRequest.class
 com/eventmanagement/dto/PaymentDtos$CreateOrderResponse.class
+com/eventmanagement/dto/TicketPurchaseRequest.class
 com/eventmanagement/dto/EventRequest$EventSettingsRequest.class
 com/eventmanagement/exception/ResourceNotFoundException.class
 com/eventmanagement/model/Event$EventStatus.class
@@ -45,5 +45,5 @@ com/eventmanagement/model/Event$EventAnalytics.class
 com/eventmanagement/service/AnalyticsService.class
 com/eventmanagement/EventManagementApplication.class
 com/eventmanagement/dto/EventRequest.class
-com/eventmanagement/controller/UploadController.class
 com/eventmanagement/config/OpenApiConfig.class
+com/eventmanagement/controller/UploadController.class
