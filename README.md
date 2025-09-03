@@ -72,20 +72,22 @@ A comprehensive web-based platform for creating events, managing ticket sales, a
 ```bash
 cd backend
 mvn clean install
-mvn spring-boot:run
+# Dev profile uses in-memory MongoDB (no external Mongo needed)
+mvn spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
 ### Frontend Setup
 ```bash
 cd frontend
 npm install
+# Point frontend to backend API
+echo "REACT_APP_API_URL=http://localhost:8080/api" > .env.local
 npm start
 ```
 
 ### Database Setup
-1. Install MongoDB
-2. Create database: `event_management`
-3. Configure connection in `application.properties`
+- Dev profile: No setup required (embedded in-memory MongoDB)
+- Production: Use MongoDB 5+, set `spring.data.mongodb.*` in `application.properties` or env vars.
 
 ## 📁 Project Structure
 

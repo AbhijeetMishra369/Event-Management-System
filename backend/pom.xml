@@ -131,6 +131,28 @@
             <artifactId>razorpay-java</artifactId>
             <version>1.4.5</version>
         </dependency>
+
+        <!-- Embedded MongoDB for local development/testing -->
+        <dependency>
+            <groupId>de.flapdoodle.embed</groupId>
+            <artifactId>de.flapdoodle.embed.mongo</artifactId>
+            <version>4.11.0</version>
+        </dependency>
+
+        <!-- In-memory MongoDB server for dev profile -->
+        <dependency>
+            <groupId>de.bwaldvogel</groupId>
+            <artifactId>mongo-java-server</artifactId>
+            <version>1.45.0</version>
+        </dependency>
+
+        <!-- Use Spring Boot-managed MongoDB driver (do not override version) -->
+
+        <!-- Spring Boot Actuator for health checks -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
