@@ -1,2 +1,2 @@
-/app/backend/src/test/java/com/eventmanagement/service/EventServiceTest.java
-/app/backend/src/test/java/com/eventmanagement/service/TicketServiceTest.java
+/workspace/backend/src/test/java/com/eventmanagement/service/TicketServiceTest.java
+/workspace/backend/src/test/java/com/eventmanagement/service/EventServiceTest.java
