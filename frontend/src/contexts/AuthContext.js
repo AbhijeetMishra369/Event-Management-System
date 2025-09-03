@@ -16,6 +16,18 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const normalizeUser = (rawUser) => {
+    if (!rawUser || typeof rawUser !== 'object') {
+      return null;
+    }
+    const inferredRole = rawUser.role || rawUser.Role || rawUser.userRole || rawUser.user_type || rawUser.type;
+    const normalizedRole = typeof inferredRole === 'string' ? inferredRole.toUpperCase() : undefined;
+    return {
+      ...rawUser,
+      role: normalizedRole,
+    };
+  };
+
   useEffect(() => {
     // Check if user is logged in on app start
     const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
@@ -24,8 +36,11 @@ export const AuthProvider = ({ children }) => {
       // In production, you'd want to validate the token with the server
       try {
         const userData = JSON.parse(localStorage.getItem('user') || '{}');
-        if (userData.email) {
-          setUser(userData);
+        if (userData && userData.email) {
+          const normalized = normalizeUser(userData);
+          // Persist normalized structure so rest of app can rely on user.role
+          localStorage.setItem('user', JSON.stringify(normalized));
+          setUser(normalized);
         }
       } catch (e) {
         localStorage.removeItem('token');
@@ -43,10 +58,11 @@ export const AuthProvider = ({ children }) => {
       setError(null);
       const response = await authService.login(email, password);
       const { accessToken, user: userData } = response;
+      const normalized = normalizeUser(userData);
       
       localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('user', JSON.stringify(userData));
-      setUser(userData);
+      localStorage.setItem('user', JSON.stringify(normalized));
+      setUser(normalized);
       return response;
     } catch (err) {
       setError(err.message || 'Login failed');
@@ -59,10 +75,11 @@ export const AuthProvider = ({ children }) => {
       setError(null);
       const response = await authService.register(userData);
       const { accessToken, user: newUser } = response;
+      const normalized = normalizeUser(newUser);
       
       localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('user', JSON.stringify(newUser));
-      setUser(newUser);
+      localStorage.setItem('user', JSON.stringify(normalized));
+      setUser(normalized);
       return response;
     } catch (err) {
       setError(err.message || 'Registration failed');
