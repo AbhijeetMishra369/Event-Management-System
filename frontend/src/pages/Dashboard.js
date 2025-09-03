@@ -90,17 +90,19 @@ const Dashboard = () => {
                 <Typography variant="h6">Quick Actions</Typography>
               </Box>
               <Grid container spacing={2}>
-                <Grid item xs={6}>
-                  <Button
-                    variant="contained"
-                    fullWidth
-                    onClick={() => navigate('/create-event')}
-                    sx={{ mb: 1 }}
-                  >
-                    Create Event
-                  </Button>
-                </Grid>
-                <Grid item xs={6}>
+                {user?.role === 'ORGANIZER' && (
+                  <Grid item xs={6}>
+                    <Button
+                      variant="contained"
+                      fullWidth
+                      onClick={() => navigate('/create-event')}
+                      sx={{ mb: 1 }}
+                    >
+                      Create Event
+                    </Button>
+                  </Grid>
+                )}
+                <Grid item xs={user?.role === 'ORGANIZER' ? 6 : 12}>
                   <Button
                     variant="outlined"
                     fullWidth
@@ -110,6 +112,18 @@ const Dashboard = () => {
                     Browse Events
                   </Button>
                 </Grid>
+                {user?.role !== 'ORGANIZER' && (
+                  <Grid item xs={6}>
+                    <Button
+                      variant="outlined"
+                      fullWidth
+                      onClick={() => navigate('/profile')}
+                      sx={{ mb: 1 }}
+                    >
+                      Edit Profile
+                    </Button>
+                  </Grid>
+                )}
                 <Grid item xs={6}>
                   <Button
                     variant="outlined"
@@ -120,16 +134,18 @@ const Dashboard = () => {
                     My Tickets
                   </Button>
                 </Grid>
-                <Grid item xs={6}>
-                  <Button
-                    variant="outlined"
-                    fullWidth
-                    onClick={() => navigate('/validate-tickets')}
-                    sx={{ mb: 1 }}
-                  >
-                    Validate Tickets
-                  </Button>
-                </Grid>
+                {(user?.role === 'STAFF' || user?.role === 'ORGANIZER' || user?.role === 'ADMIN') && (
+                  <Grid item xs={6}>
+                    <Button
+                      variant="outlined"
+                      fullWidth
+                      onClick={() => navigate('/validate-tickets')}
+                      sx={{ mb: 1 }}
+                    >
+                      Validate Tickets
+                    </Button>
+                  </Grid>
+                )}
               </Grid>
             </CardContent>
           </Card>
@@ -303,6 +319,14 @@ const Dashboard = () => {
               >
                 My Tickets
               </Button>
+              {(user?.role === 'ATTENDEE') && (
+                <Button
+                  variant="outlined"
+                  onClick={() => navigate('/profile')}
+                >
+                  Edit Profile
+                </Button>
+              )}
             </Box>
           </CardContent>
         </Card>
