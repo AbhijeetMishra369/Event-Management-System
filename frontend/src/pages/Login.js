@@ -28,12 +28,13 @@ import {
 } from '@mui/icons-material';
 import { useNavigate, Link as RouterLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 
 const Login = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, error } = useAuth();
+  const { login, loginWithGoogle, error } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -95,9 +96,20 @@ const Login = () => {
     }
   };
 
-  const handleSocialLogin = (provider) => {
-    // Implement social login functionality
-    console.log(`Logging in with ${provider}`);
+  const handleGoogleSuccess = async (credentialResponse) => {
+    if (!credentialResponse?.credential) return;
+    setLoading(true);
+    try {
+      await loginWithGoogle(credentialResponse.credential);
+      navigate(from, { replace: true });
+    } catch (e) {
+      // handled via context error
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleGoogleError = () => {
+    // no-op; UI already shows error via context if request made
   };
 
   return (
@@ -175,41 +187,9 @@ const Login = () => {
 
               {/* Social Login Buttons */}
               <Box sx={{ mb: 3 }}>
-                <Button
-                  fullWidth
-                  variant="outlined"
-                  startIcon={<GoogleIcon />}
-                  onClick={() => handleSocialLogin('Google')}
-                  sx={{
-                    mb: 2,
-                    py: 1.5,
-                    borderColor: '#db4437',
-                    color: '#db4437',
-                    '&:hover': {
-                      borderColor: '#c23321',
-                      backgroundColor: 'rgba(219, 68, 55, 0.04)',
-                    },
-                  }}
-                >
-                  Continue with Google
-                </Button>
-                <Button
-                  fullWidth
-                  variant="outlined"
-                  startIcon={<FacebookIcon />}
-                  onClick={() => handleSocialLogin('Facebook')}
-                  sx={{
-                    py: 1.5,
-                    borderColor: '#4267B2',
-                    color: '#4267B2',
-                    '&:hover': {
-                      borderColor: '#365899',
-                      backgroundColor: 'rgba(66, 103, 178, 0.04)',
-                    },
-                  }}
-                >
-                  Continue with Facebook
-                </Button>
+                <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID || ''}>
+                  <GoogleLogin onSuccess={handleGoogleSuccess} onError={handleGoogleError} useOneTap size="large" shape="pill" width="100%" />
+                </GoogleOAuthProvider>
               </Box>
 
               <Divider sx={{ my: 3 }}>

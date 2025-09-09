@@ -31,6 +31,8 @@ public class User implements UserDetails {
     private String lastName;
     private String phoneNumber;
     private String profileImage;
+    private String authProvider; // e.g., LOCAL, GOOGLE
+    private String providerId; // provider unique id (e.g., Google sub)
     private UserRole role;
     private boolean enabled = true;
     private boolean emailVerified = false;

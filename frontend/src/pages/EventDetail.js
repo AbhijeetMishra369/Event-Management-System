@@ -1,5 +1,8 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Box, Typography, Container, Grid, Card, CardContent, CardMedia, Chip, Stack, TextField, MenuItem, Button, Alert, CircularProgress } from '@mui/material';
+import { Helmet } from 'react-helmet';
+import { Box, Typography, Container, Grid, Card, CardContent, CardMedia, Chip, Stack, TextField, MenuItem, Button, Alert, CircularProgress, IconButton, Tooltip } from '@mui/material';
+import { FacebookShareButton, LinkedinShareButton, TwitterShareButton, FacebookIcon as FBIcon, LinkedinIcon, XIcon } from 'react-share';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { useParams } from 'react-router-dom';
 import { eventService } from '../services/eventService';
 import { createOrder, verifyPayment } from '../services/paymentService';
@@ -27,6 +30,8 @@ const EventDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [purchaseError, setPurchaseError] = useState('');
   const [purchaseSuccess, setPurchaseSuccess] = useState('');
+  const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
+  const shareTitle = event?.name || 'Check out this event!';
 
   useEffect(() => {
     (async () => {
@@ -148,6 +153,19 @@ const EventDetail = () => {
 
   return (
     <Container maxWidth="lg">
+      <Helmet>
+        <title>{event.name} | EventHub</title>
+        <meta name="description" content={event.description?.slice(0, 150) || 'Event details'} />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content={event.name} />
+        <meta property="og:description" content={event.description || ''} />
+        <meta property="og:image" content={event.eventImage?.startsWith('http') ? event.eventImage : `${process.env.REACT_APP_API_URL || '/api'}${event.eventImage || ''}`} />
+        <meta property="og:url" content={typeof window !== 'undefined' ? window.location.href : ''} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={event.name} />
+        <meta name="twitter:description" content={event.description || ''} />
+        <meta name="twitter:image" content={event.eventImage?.startsWith('http') ? event.eventImage : `${process.env.REACT_APP_API_URL || '/api'}${event.eventImage || ''}`} />
+      </Helmet>
       <Box sx={{ py: 4 }}>
         <Grid container spacing={4}>
           <Grid item xs={12} md={7}>
@@ -237,6 +255,24 @@ const EventDetail = () => {
                     </Stack>
                   </Box>
                 )}
+                {/* Share Buttons */}
+                <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>Share:</Typography>
+                  <TwitterShareButton url={shareUrl} title={shareTitle}>
+                    <XIcon size={32} round />
+                  </TwitterShareButton>
+                  <FacebookShareButton url={shareUrl} quote={shareTitle}>
+                    <FBIcon size={32} round />
+                  </FacebookShareButton>
+                  <LinkedinShareButton url={shareUrl} title={shareTitle} summary={event?.description || ''}>
+                    <LinkedinIcon size={32} round />
+                  </LinkedinShareButton>
+                  <Tooltip title="Copy link">
+                    <IconButton onClick={() => navigator.clipboard.writeText(shareUrl)}>
+                      <ContentCopyIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
               </CardContent>
             </Card>
           </Grid>
