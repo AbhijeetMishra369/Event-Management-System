@@ -3,6 +3,7 @@ package com.eventmanagement.controller;
 import com.eventmanagement.dto.AuthRequest;
 import com.eventmanagement.dto.AuthResponse;
 import com.eventmanagement.service.UserService;
+import com.eventmanagement.service.SocialAuthService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,10 +17,23 @@ public class AuthController {
     @Autowired
     private UserService userService;
     
+    @Autowired
+    private SocialAuthService socialAuthService;
+    
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody AuthRequest authRequest) {
         try {
             AuthResponse response = userService.authenticateUser(authRequest);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+    
+    @PostMapping("/google")
+    public ResponseEntity<AuthResponse> loginWithGoogle(@RequestParam("id_token") String idToken) {
+        try {
+            AuthResponse response = socialAuthService.authenticateWithGoogle(idToken);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();

@@ -10,6 +10,19 @@ export const authService = {
     }
   },
 
+  async loginWithGoogle(idToken) {
+    try {
+      const params = new URLSearchParams();
+      params.append('id_token', idToken);
+      const response = await api.post('/auth/google', params, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Google login failed');
+    }
+  },
+
   async register(userData) {
     try {
       const response = await api.post('/auth/register', userData);
