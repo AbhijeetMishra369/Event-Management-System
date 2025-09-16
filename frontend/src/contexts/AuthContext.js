@@ -32,23 +32,42 @@ export const AuthProvider = ({ children }) => {
     // Check if user is logged in on app start
     const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
     if (token) {
-      // For now, just set loading to false and assume token is valid
-      // In production, you'd want to validate the token with the server
+      // In a real app, you would validate the token with the backend here.
+      // For this implementation, we trust the token if user data is also present.
       try {
-        const userData = JSON.parse(localStorage.getItem('user') || '{}');
-        if (userData && userData.email) {
-          const normalized = normalizeUser(userData);
-          // Persist normalized structure so rest of app can rely on user.role
-          localStorage.setItem('user', JSON.stringify(normalized));
-          setUser(normalized);
+        const userDataString = localStorage.getItem('user');
+        if (userDataString) {
+          const userData = JSON.parse(userDataString);
+          // Check if user data is a valid object with an email
+          if (userData && typeof userData === 'object' && userData.email) {
+            const normalized = normalizeUser(userData);
+            setUser(normalized);
+            // Persist the normalized user object
+            localStorage.setItem('user', JSON.stringify(normalized));
+          } else {
+            // Token found, but user data is invalid or malformed.
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            setUser(null);
+          }
+        } else {
+          // Token found, but no user data.
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          setUser(null);
         }
-      } catch (e) {
-        localStorage.removeItem('token');
+      } catch (error) {
+        // Failed to parse user data.
         localStorage.removeItem('accessToken');
+        localStorage.removeItem('token');
         localStorage.removeItem('user');
+        setUser(null);
       }
       setLoading(false);
     } else {
+      // No token found.
       setLoading(false);
     }
   }, []);

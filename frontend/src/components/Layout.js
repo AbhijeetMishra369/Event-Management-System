@@ -34,6 +34,8 @@ import {
   Add as AddIcon,
   ConfirmationNumber as TicketIcon,
   QrCodeScanner as ScannerIcon,
+  Login as LoginIcon,
+  PersonAdd as PersonAddIcon,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -223,7 +225,7 @@ const Layout = ({ children }) => {
           })}
         </List>
 
-        {isAuthenticated && (
+        {isAuthenticated ? (
           <>
             <Divider sx={{ my: 2 }} />
             <List>
@@ -244,6 +246,24 @@ const Layout = ({ children }) => {
                   <LogoutIcon />
                 </ListItemIcon>
                 <ListItemText primary="Logout" />
+              </ListItem>
+            </List>
+          </>
+        ) : (
+          <>
+            <Divider sx={{ my: 2 }} />
+            <List>
+              <ListItem button onClick={() => { handleNavigation('/login'); setMobileDrawerOpen(false); }}>
+                <ListItemIcon>
+                  <LoginIcon />
+                </ListItemIcon>
+                <ListItemText primary="Login" />
+              </ListItem>
+              <ListItem button onClick={() => { handleNavigation('/register'); setMobileDrawerOpen(false); }}>
+                <ListItemIcon>
+                  <PersonAddIcon />
+                </ListItemIcon>
+                <ListItemText primary="Sign Up" />
               </ListItem>
             </List>
           </>
